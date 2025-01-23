@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, redirect, url_for
 from models import db, Category
 
 stocks_bp = Blueprint('stocks', __name__)
@@ -6,7 +6,32 @@ stocks_bp = Blueprint('stocks', __name__)
 @stocks_bp.route('/categories', methods=['GET'])
 def get_categories():
     categories = Category.query.all()
-    return jsonify([{'id': c.id, 'name': c.name} for c in categories])
+    return '''
+        <h1>Categories</h1>
+        <ul>
+            {}
+        </ul>
+        <a href="/categories/new">Add Category</a>
+    '''.format(''.join(f'<li>{c.name}</li>' for c in categories))
+
+@stocks_bp.route('/categories/new', methods=['GET', 'POST'])
+def new_category():
+    if request.method == 'POST':
+        name = request.form['name']
+        new_category = Category(name=name)
+        db.session.add(new_category)
+        db.session.commit()
+        return redirect(url_for('stocks.get_categories'))
+    
+    return '''
+        <h1>Add Category</h1>
+        <form method="POST">
+            <label>Name:</label>
+            <input type="text" name="name" required>
+            <button type="submit">Save</button>
+        </form>
+        <a href="/categories">Back to Categories</a>
+    '''
 
 @stocks_bp.route('/categories', methods=['POST'])
 def create_category():
