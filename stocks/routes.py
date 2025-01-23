@@ -12,7 +12,7 @@ def get_categories():
             {}
         </ul>
         <a href="/categories/new">Add Category</a>
-    '''.format(''.join(f'<li>{c.name} <a href="/categories/{c.id}/edit">Edit</a></li>' for c in categories))
+    '''.format(''.join(f'<li>{c.name} <a href="/categories/{c.id}">Show</a> <a href="/categories/{c.id}/edit">Edit</a></li>' for c in categories))
 
 @stocks_bp.route('/categories/new', methods=['GET', 'POST'])
 def new_category():
@@ -44,7 +44,13 @@ def create_category():
 @stocks_bp.route('/categories/<int:id>', methods=['GET'])
 def get_category(id):
     category = Category.query.get_or_404(id)
-    return jsonify({'id': category.id, 'name': category.name})
+    return f'''
+        <h1>Category Details</h1>
+        <p><strong>ID:</strong> {category.id}</p>
+        <p><strong>Name:</strong> {category.name}</p>
+        <a href="/categories/{category.id}/edit">Edit</a> | 
+        <a href="/categories">Back to Categories</a>
+    '''
 
 @stocks_bp.route('/categories/<int:id>/edit', methods=['GET', 'POST'])
 def edit_category(id):
